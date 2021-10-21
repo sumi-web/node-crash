@@ -2,6 +2,9 @@ import express from "express";
 import morgan from "morgan";
 const app = express();
 
+// connect to mongoDb
+const dbURI = "mongodb+srv://sumiBoi:sumi1234@nodetuts.llcwi.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+
 app.set("view engine", "ejs");
 
 const blogs = [
