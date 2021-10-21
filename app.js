@@ -1,4 +1,5 @@
 import express from "express";
+import morgan from "morgan";
 const app = express();
 
 app.set("view engine", "ejs");
@@ -18,7 +19,13 @@ const blogs = [
 	},
 ];
 
+//middleware and static files
+app.use(express.static("public"));
+
+app.use(morgan("tiny"));
+
 app.get("/", (req, res) => {
+	console.log("inside route");
 	res.render("index", { title: "Home" });
 });
 
@@ -28,6 +35,10 @@ app.get("/about", (req, res) => {
 
 app.get("/blogs/create", (req, res) => {
 	res.render("create", { title: "Home" });
+});
+
+app.use((req, res) => {
+	res.status(404).render("404", { title: "Home" });
 });
 
 app.use((req, res) => {
