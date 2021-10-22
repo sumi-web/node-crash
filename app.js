@@ -23,24 +23,9 @@ mongoose
 
 app.set("view engine", "ejs");
 
-const blogs = [
-	{
-		title: "Yoshi finds eggs",
-		snippet: "	Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-	},
-	{
-		title: "mario finds stars",
-		snippet: "	Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-	},
-	{
-		title: "how to defeat browser",
-		snippet: "	Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-	},
-];
-
 //middleware and static files
 app.use(express.static("public"));
-
+app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
 //mongoose and mongo sandbox routes
@@ -54,8 +39,7 @@ app.get("/add-blog", (req, res) => {
 		body: "more about my new blog",
 	});
 
-	blog
-		.save()
+	blog.save()
 		.then((result) => {
 			res.send(result);
 		})
@@ -93,12 +77,40 @@ app.get("/about", (req, res) => {
 
 app.get("/blogs", async (req, res) => {
 	const result = await Blog.find().sort({ createdAt: -1 });
+
 	res.render("index", { title: "All Blogs", blogs: result });
 	// res.send(result);
 });
 
 app.get("/blogs/create", (req, res) => {
 	res.render("create", { title: "Home" });
+});
+
+app.post("/blogs/create", (req, res) => {
+	const blog = new Blog(req.body);
+	blog.save()
+		.then((result) => res.redirect("/blogs"))
+		.catch((err) => console.log("err in saving", err));
+});
+
+app.delete("/blogs/:id", (req, res) => {
+	const { id } = req.params;
+
+	Blog.findByIdAndDelete(id)
+		.then((result) => {
+			res.json({ redirect: "/blogs" });
+		})
+		.catch((err) => {});
+});
+
+app.get("/blogs/:blogId", (req, res) => {
+	const { blogId } = req.params;
+
+	Blog.findById(blogId)
+		.then((result) => {
+			res.render("details", { title: "Blog details", blog: result });
+		})
+		.catch((err) => console.log("check err in fetching data", err));
 });
 
 app.use((req, res) => {
